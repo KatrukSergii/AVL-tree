@@ -55,6 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AvlTree\Node.cs" />
+    <Compile Include="AvlTree\Tree.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="ViewModelBase.cs" />
