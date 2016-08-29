@@ -9,7 +9,7 @@ namespace AVLTree.AvlTree
     public class Tree<T> where T : IComparable
     {
         public T DefaultValue { get; }
-        public Node<T> Root { get; private set; }
+        public Node<T> Root { get; set; }
 
         public void Add(T item)
         {
@@ -18,14 +18,12 @@ namespace AVLTree.AvlTree
                 this.Root = new Node<T>(item, this);
                 return;
             }
-            this.Root.Add(item);
+            this.Root.Add(this.Root, item);
         }
 
         public void Remove(T item)
         {
-            if (this.Root == null)
-                return;
-            this.Root.Romove(item);
+            this.Root?.Remove(this.Root, item);
         }
         public T Find(Func<T, short> predicate)
         {
@@ -35,7 +33,7 @@ namespace AVLTree.AvlTree
         }
         public Tree(T defaultValue = default(T))
         {
-            
+            this.DefaultValue = defaultValue;
         }
     }
 }
