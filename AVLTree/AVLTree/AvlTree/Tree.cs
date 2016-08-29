@@ -16,9 +16,17 @@ namespace AVLTree.AvlTree
             if (this.Root == null)
             {
                 this.Root = new Node<T>(item, this);
+                this.Root.OnUpdateLink += this.Root_OnUpdateLink;
                 return;
             }
             this.Root.Add(this.Root, item);
+        }
+
+        private void Root_OnUpdateLink(Node<T> newNode)
+        {
+            if (this.Root != null)
+                this.Root.OnUpdateLink -= this.Root_OnUpdateLink;
+            this.Root = newNode;
         }
 
         public void Remove(T item)

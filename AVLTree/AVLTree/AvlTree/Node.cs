@@ -2,12 +2,65 @@
 
 namespace AVLTree.AvlTree
 {
-    public class Node<T> where T : IComparable
+
+    public delegate void UpdateLink<T>(Node<T> newNode) where T : IComparable;
+
+
+    public interface IParent<T> where T : IComparable
+    {
+        event UpdateLink<T> OnUpdateLink;
+        void OnUpdateLink(Node<T> oldNode, Node<T> newNode);
+        IParent<T> Parent { get;}
+    }
+    public class Node<T> where T : IComparable, IParent<T>
     {
         public T Value { get; set; }
         public Tree<T> Tree { get;}
-        public Node<T> Left { get; set; }
-        public Node<T> Right { get; set; }
+        private Node<T> left;
+        private Node<T> right;
+
+        public Node<T> Left
+        {
+            get
+            {
+                return this.left;
+            }
+            set
+            {
+                this.left = value;
+                if (this.left != null)
+                    this.left.OnUpdateLink += this.Left_OnUpdateLink;
+            }
+        }
+
+        private void Left_OnUpdateLink(Node<T> newNode)
+        {
+            if (this.left != null)
+                this.left.OnUpdateLink -= this.Left_OnUpdateLink;
+            this.Left = newNode;
+        }
+
+        public Node<T> Right
+        {
+            get
+            {
+                return this.right;
+            }
+            set
+            {
+                this.right = value;
+                if (this.right != null)
+                    this.right.OnUpdateLink += this.Right_OnUpdateLink;
+            }
+        }
+
+        private void Right_OnUpdateLink(Node<T> newNode)
+        {
+            if (this.right != null)
+                this.right.OnUpdateLink -= this.Right_OnUpdateLink;
+            this.Right = newNode;
+        }
+
         public override string ToString()
         {
             return this.Value.ToString();
@@ -89,7 +142,9 @@ namespace AVLTree.AvlTree
         {
             return node?.Height ?? 0;
         }
+        event UpdateLink<T> OnUpdateLink;
 
+        public IParent<T> Parent { get; private set; }
         public int BalanceFactor(Node<T> node)
         {
             return (node?.Right?.Height ?? 0) - (node?.Left?.Height ?? 0);
@@ -113,6 +168,7 @@ namespace AVLTree.AvlTree
             left.Right = node;
             node.FixHeight(node);
             node.FixHeight(left);
+            node.OnUpdateLink?.Invoke(left);
             return left;
         }
 
@@ -123,8 +179,11 @@ namespace AVLTree.AvlTree
             right.Left = node;
             node.FixHeight(node);
             node.FixHeight(right);
+            node.Parent.OnUpdateLink?.Invoke(right);
             return right;
         }
+
+
 
         protected Node<T> Balance(Node<T> node)
         {
