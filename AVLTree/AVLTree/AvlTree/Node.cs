@@ -2,63 +2,19 @@
 
 namespace AVLTree.AvlTree
 {
-
-    public delegate void UpdateLink<T>(Node<T> newNode) where T : IComparable;
-
-
-    public interface IParent<T> where T : IComparable
-    {
-        event UpdateLink<T> OnUpdateLink;
-        void OnUpdateLink(Node<T> oldNode, Node<T> newNode);
-        IParent<T> Parent { get;}
-    }
-    public class Node<T> where T : IComparable, IParent<T>
+    public class Node<T> where T : IComparable
     {
         public T Value { get; set; }
-        public Tree<T> Tree { get;}
-        private Node<T> left;
-        private Node<T> right;
+        public Tree<T> Tree { get; }
 
         public Node<T> Left
         {
-            get
-            {
-                return this.left;
-            }
-            set
-            {
-                this.left = value;
-                if (this.left != null)
-                    this.left.OnUpdateLink += this.Left_OnUpdateLink;
-            }
-        }
-
-        private void Left_OnUpdateLink(Node<T> newNode)
-        {
-            if (this.left != null)
-                this.left.OnUpdateLink -= this.Left_OnUpdateLink;
-            this.Left = newNode;
+            get; set;
         }
 
         public Node<T> Right
         {
-            get
-            {
-                return this.right;
-            }
-            set
-            {
-                this.right = value;
-                if (this.right != null)
-                    this.right.OnUpdateLink += this.Right_OnUpdateLink;
-            }
-        }
-
-        private void Right_OnUpdateLink(Node<T> newNode)
-        {
-            if (this.right != null)
-                this.right.OnUpdateLink -= this.Right_OnUpdateLink;
-            this.Right = newNode;
+            get; set;
         }
 
         public override string ToString()
@@ -86,11 +42,11 @@ namespace AVLTree.AvlTree
         public Node<T> Add(Node<T> node, T item)
         {
             if (item == null)
-                return null;
+                return node;
 
             var comparisionResult = item.CompareTo(node.Value);
             if (comparisionResult == 0)
-                return null;
+                return node;
             var newNode = new Node<T>(item, node.Tree);
             if (comparisionResult < 0)
                 if (node.Left == null)
@@ -118,18 +74,19 @@ namespace AVLTree.AvlTree
             return node.Balance(node);
         }
 
-       public  Node<T> Remove(Node<T> node, T item) 
-       {
-           var comparisionResult = node.Value.CompareTo(item);
+        public Node<T> Remove(Node<T> node, T item)
+        {
+            var comparisionResult = node.Value.CompareTo(item);
             if (comparisionResult < 0)
                 node.Left = node.Remove(node.Left, item);
             else if (comparisionResult < 0)
                 node.Right = node.Remove(node.Right, item);
-            else 
+            else
             {
                 Node<T> q = node.Left;
                 Node<T> r = node.Right;
-                if (r == null) return q;
+                if (r == null)
+                    return q;
                 Node<T> min = node.FindMin(r);
                 min.Right = node.RemoveMin(r);
                 min.Left = q;
@@ -137,14 +94,12 @@ namespace AVLTree.AvlTree
             }
             return node.Balance(node);
         }
-        
+
         protected int GetHeight(Node<T> node)
         {
             return node?.Height ?? 0;
         }
-        event UpdateLink<T> OnUpdateLink;
 
-        public IParent<T> Parent { get; private set; }
         public int BalanceFactor(Node<T> node)
         {
             return (node?.Right?.Height ?? 0) - (node?.Left?.Height ?? 0);
@@ -168,7 +123,6 @@ namespace AVLTree.AvlTree
             left.Right = node;
             node.FixHeight(node);
             node.FixHeight(left);
-            node.OnUpdateLink?.Invoke(left);
             return left;
         }
 
@@ -179,7 +133,6 @@ namespace AVLTree.AvlTree
             right.Left = node;
             node.FixHeight(node);
             node.FixHeight(right);
-            node.Parent.OnUpdateLink?.Invoke(right);
             return right;
         }
 
@@ -200,7 +153,7 @@ namespace AVLTree.AvlTree
                     node.Left = node.RotaiteLeft(node.Left);
                 return node.RotateRight(node);
             }
-            return node; 
+            return node;
         }
     }
 }
