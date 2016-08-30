@@ -26,7 +26,7 @@ namespace AVLTree.AvlTree
             return node.Balance(node);
         }
 
-        protected Node<T> Balance(Node<T> node)
+        private Node<T> Balance(Node<T> node)
         {
             node.FixHeight(node);
             if (node.BalanceFactor(node) == 2)
@@ -61,12 +61,24 @@ namespace AVLTree.AvlTree
             return this.Tree.DefaultValue;
         }
 
-        protected Node<T> FindMin(Node<T> node)
+        public T Find(Func<T, T, short> predicate, T arg)
+        {
+            var comparisionResult = predicate(this.Value, arg);
+            if (comparisionResult == 0)
+                return this.Value;
+            if ((comparisionResult > 0) && (this.Right != null))
+                return this.Right.Find(predicate, arg);
+            if ((comparisionResult < 0) && (this.Left != null))
+                return this.Left.Find(predicate, arg);
+            return this.Tree.DefaultValue;
+        }
+
+        private Node<T> FindMin(Node<T> node)
         {
             return node?.Left?.FindMin(node.Left) ?? node;
         }
 
-        protected void FixHeight(Node<T> node)
+        private void FixHeight(Node<T> node)
         {
             if (node == null)
                 return;
@@ -75,7 +87,7 @@ namespace AVLTree.AvlTree
             node.Height = (leftH > rightH ? leftH : rightH) + 1;
         }
 
-        protected int GetHeight(Node<T> node)
+        private int GetHeight(Node<T> node)
         {
             return node?.Height ?? 0;
         }
@@ -112,7 +124,7 @@ namespace AVLTree.AvlTree
             return node.Balance(node);
         }
 
-        protected Node<T> RemoveMin(Node<T> node)
+        private Node<T> RemoveMin(Node<T> node)
         {
             if (node.Left == null)
                 return node.Right;
@@ -122,7 +134,7 @@ namespace AVLTree.AvlTree
 
         public Node<T> Right { get; set; }
 
-        protected Node<T> RotaiteLeft(Node<T> node)
+        private Node<T> RotaiteLeft(Node<T> node)
         {
             var right = node.Right;
             node.Right = right.Left;
@@ -132,7 +144,7 @@ namespace AVLTree.AvlTree
             return right;
         }
 
-        protected Node<T> RotateRight(Node<T> node)
+        private Node<T> RotateRight(Node<T> node)
         {
             var left = node.Left;
             node.Left = left.Right;

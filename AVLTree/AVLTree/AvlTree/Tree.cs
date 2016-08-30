@@ -14,6 +14,8 @@ namespace AVLTree.AvlTree
             this.Root = this.Root.Add(this.Root, item);
         }
 
+        public int Count => this.Root?.Height ?? 0;
+
         public T DefaultValue { get; }
 
         public T Find(Func<T, short> predicate)
@@ -21,6 +23,13 @@ namespace AVLTree.AvlTree
             if (this.Root == null)
                 return this.DefaultValue;
             return this.Root.Find(predicate);
+        }
+
+        public T Find(Func<T, T, short> predicate, T arg)
+        {
+            if (this.Root == null)
+                return this.DefaultValue;
+            return this.Root.Find(predicate, arg);
         }
 
         public void Remove(T item)

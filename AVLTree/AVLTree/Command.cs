@@ -10,23 +10,13 @@ namespace AVLTree
         private readonly Action execAction;
 
         private readonly Action<object> execParamAction;
+
         public bool CanExecute(object parameter)
         {
             return this.canExec?.Invoke(parameter) ?? true;
         }
 
-        public void Execute(object parameter)
-        {
-            this.execAction?.Invoke();
-            this.execParamAction?.Invoke(parameter);
-        }
-
         public event EventHandler CanExecuteChanged;
-
-        private Command(Func<object, bool> canExecFunc)
-        {
-            this.canExec = canExecFunc;
-        }
 
         public Command(Action execAction, Func<object, bool> canExecFunc = null)
             : this(canExecFunc)
@@ -39,5 +29,17 @@ namespace AVLTree
         {
             this.execParamAction = execParamAction;
         }
+
+        private Command(Func<object, bool> canExecFunc)
+        {
+            this.canExec = canExecFunc;
+        }
+
+        public void Execute(object parameter)
+        {
+            this.execAction?.Invoke();
+            this.execParamAction?.Invoke(parameter);
+        }
+
     }
 }
