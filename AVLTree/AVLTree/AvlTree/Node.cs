@@ -2,9 +2,9 @@
 
 namespace AVLTree.AvlTree
 {
-    public class Node<T> where T : IComparable
+    public class Node<T, S> where T : ITreeComparable<S>
     {
-        public Node<T> Add(Node<T> node, T item)
+        public Node<T, S> Add(Node<T, S> node, T item)
         {
             if (item == null)
                 return node;
@@ -12,7 +12,7 @@ namespace AVLTree.AvlTree
             var comparisionResult = item.CompareTo(node.Value);
             if (comparisionResult == 0)
                 return node;
-            var newNode = new Node<T>(item, node.Tree);
+            var newNode = new Node<T, S>(item, node.Tree);
             if (comparisionResult < 0)
                 if (node.Left == null)
                     node.Left = newNode;
@@ -25,8 +25,8 @@ namespace AVLTree.AvlTree
                     node.Right = node.Right.Add(node.Right, item);
             return node.Balance(node);
         }
-
-        private Node<T> Balance(Node<T> node)
+        
+        private Node<T, S> Balance(Node<T, S> node)
         {
             node.FixHeight(node);
             if (node.BalanceFactor(node) == 2)
@@ -44,41 +44,29 @@ namespace AVLTree.AvlTree
             return node;
         }
 
-        public int BalanceFactor(Node<T> node)
+        public int BalanceFactor(Node<T, S> node)
         {
             return (node?.Right?.Height ?? 0) - (node?.Left?.Height ?? 0);
         }
 
-        public T Find(Func<T, short> predicate)
+        public T Find(S key)
         {
-            var comparisionResult = predicate(this.Value);
+            var comparisionResult = this.Value.Compare(key);
             if (comparisionResult == 0)
                 return this.Value;
             if ((comparisionResult > 0) && (this.Right != null))
-                return this.Right.Find(predicate);
+                return this.Right.Find(key);
             if ((comparisionResult < 0) && (this.Left != null))
-                return this.Left.Find(predicate);
+                return this.Left.Find(key);
             return this.Tree.DefaultValue;
         }
-
-        public T Find(Func<T, T, short> predicate, T arg)
-        {
-            var comparisionResult = predicate(this.Value, arg);
-            if (comparisionResult == 0)
-                return this.Value;
-            if ((comparisionResult > 0) && (this.Right != null))
-                return this.Right.Find(predicate, arg);
-            if ((comparisionResult < 0) && (this.Left != null))
-                return this.Left.Find(predicate, arg);
-            return this.Tree.DefaultValue;
-        }
-
-        private Node<T> FindMin(Node<T> node)
+        
+        private Node<T, S> FindMin(Node<T, S> node)
         {
             return node?.Left?.FindMin(node.Left) ?? node;
         }
 
-        private void FixHeight(Node<T> node)
+        private void FixHeight(Node<T, S> node)
         {
             if (node == null)
                 return;
@@ -87,23 +75,23 @@ namespace AVLTree.AvlTree
             node.Height = (leftH > rightH ? leftH : rightH) + 1;
         }
 
-        private int GetHeight(Node<T> node)
+        private int GetHeight(Node<T, S> node)
         {
             return node?.Height ?? 0;
         }
 
         public int Height { get; private set; }
 
-        public Node<T> Left { get; set; }
+        public Node<T, S> Left { get; set; }
 
-        public Node(T value, Tree<T> tree = null)
+        public Node(T value, Tree<T, S> tree = null)
         {
             this.Tree = tree;
             this.Value = value;
             this.Height = 1;
         }
 
-        public Node<T> Remove(Node<T> node, T item)
+        public Node<T, S> Remove(Node<T, S> node, T item)
         {
             var comparisionResult = item.CompareTo(node.Value);
             if (comparisionResult < 0)
@@ -124,7 +112,7 @@ namespace AVLTree.AvlTree
             return node.Balance(node);
         }
 
-        private Node<T> RemoveMin(Node<T> node)
+        private Node<T, S> RemoveMin(Node<T, S> node)
         {
             if (node.Left == null)
                 return node.Right;
@@ -132,9 +120,9 @@ namespace AVLTree.AvlTree
             return node.Balance(node);
         }
 
-        public Node<T> Right { get; set; }
+        public Node<T, S> Right { get; set; }
 
-        private Node<T> RotaiteLeft(Node<T> node)
+        private Node<T, S> RotaiteLeft(Node<T, S> node)
         {
             var right = node.Right;
             node.Right = right.Left;
@@ -144,7 +132,7 @@ namespace AVLTree.AvlTree
             return right;
         }
 
-        private Node<T> RotateRight(Node<T> node)
+        private Node<T, S> RotateRight(Node<T, S> node)
         {
             var left = node.Left;
             node.Left = left.Right;
@@ -159,8 +147,10 @@ namespace AVLTree.AvlTree
             return this.Value.ToString();
         }
 
-        public Tree<T> Tree { get; }
+        public Tree<T, S> Tree { get; }
 
         public T Value { get; set; }
+
+        public string ValueString => this.Value?.ToString();
     }
 }

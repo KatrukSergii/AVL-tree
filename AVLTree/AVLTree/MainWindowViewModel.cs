@@ -12,12 +12,12 @@ namespace AVLTree
         private void Start()
         {
             Random r = new Random(234);
-            int treeValue = 0;
-            int listValue = 0;
-            Tree<int> tree = new Tree<int>();
+            MyTestClass treeValue = null;
+            MyTestClass listValue = null;
+            Tree<MyTestClass, string> tree = new Tree<MyTestClass, string>();
             for (int i = 0; i < 1000000; i++)
             {
-                var rand = r.Next();
+                var rand = new MyTestClass(r.Next());
                 tree.Add(rand);
                 if (i == 500000)
                     treeValue = rand;
@@ -25,26 +25,21 @@ namespace AVLTree
 
             this.Info = tree.Count.ToString();
 
-            List<int> list = new List<int>();
+            List<MyTestClass> list = new List<MyTestClass>();
             for (int i = 0; i < 1000000; i++)
             {
-                var rand = r.Next();
+                var rand = new MyTestClass(r.Next()); ;
                 list.Add(rand);
                 if (i == 500000)
                     listValue = rand;
             }
             this.Info = list.Count.ToString();
-            var foundTree = tree.Find(this.FindPredicate, treeValue);
-            var foundList = list.Find(v => v == listValue);
+            var foundTree = tree.Find(treeValue.Key);
+            var foundList = list.Find(v => v.Key == listValue.Key);
             this.Info = foundTree.ToString();
             this.Info = foundList.ToString();
         }
-
-        private short FindPredicate(int currentValue, int valueToFind)
-        {
-            return (short)valueToFind.CompareTo(currentValue);
-        }
-
+        
         public string Info { get; private set; }
         
     }
